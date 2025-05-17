@@ -1,0 +1,373 @@
+  <!DOCTYPE html>
+  <html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <title>Симулятор Футболиста</title>
+    <style>
+      .container {
+        position: relative; /* Для абсолютного позиционирования кнопки внутри контейнера */
+        width: 200px;
+        height: 100px;
+        border: 1px solid black;
+      }#shop-close {
+        position: absolute;
+        top: 30px;     
+        left: 30px;     
+    
+        padding: 20px;
+        background-color: #ecf0ec;
+        color: rgb(7, 0, 0);
+        border: rgb(8, 7, 7);
+      }
+
+      #shop-toggle {
+        position: absolute;
+        top: 30px;     
+        left: 30px;     
+    
+        padding: 20px;
+        background-color: #ecf0ec;
+        color: rgb(7, 0, 0);
+      }
+      #statistics-toggle {
+        position: absolute;
+        top: 100px;     
+        left: 30px;     
+    
+        padding: 20px;
+        background-color: #ecf0ec;
+        color: rgb(7, 0, 0);
+      }
+      #reset-button {
+        position: absolute;
+        top: 170px;     
+        left: 30px;     
+    
+        padding: 20px;
+        background-color: #ecf0ec;
+        color: rgb(7, 0, 0);
+      }#click-button {
+        position : absolute;
+        top : 300px;
+        left : 730px;
+        align-items: center;
+        justify-content: center;
+        height : 75px;
+        width : 200px;
+        background-color: #ecf0ec;
+        color: rgb(7, 0, 0);
+      }
+      #upgrade-button{
+        top : 300px;
+        left : 40px;
+        position : absolute;
+        color : black;
+        padding : 20px;
+        background-color : white;
+      }#autoclicker-button{
+        top : 400px;
+        left : 40px;
+        position : absolute;
+        color : black;
+        padding : 20px;
+        background-color : white;
+      }#scoregoal-button{
+        top : 500px;
+        left : 40px;
+        position : absolute ; 
+        color : black;
+        padding : 20px;
+        background : white;
+
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background-image: url('https://img.goodfon.ru/wallpaper/big/f/c1/futbol-muzhchina-miach-sport-foto.webp');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        text-align: center;
+        font-family: Arial;
+      }
+
+      button {
+        padding: 15px 30px;
+        font-size: 20px;
+        cursor: pointer;
+        margin: 10px;
+      }
+
+      #start-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0 );
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 15;
+      } #statistics {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(19, 195, 78);
+        color: white;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }
+
+      #score {
+        font-size: 28px;
+        margin-top: 20px;
+      }
+
+      /* #shop {
+        display: none;
+        margin-top: 100px;
+        border: 2px solid #000;
+        padding: 300px;
+        width: 300px;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: green;
+      } */
+      #shop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(19, 195, 78);
+        color: white;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }.overlay-info {
+        position: relative;
+        z-index: 11; /* больше, чем у магазина */
+        color: white;
+        font-weight: bold;
+        background-color: rgba(0, 0, 0, ); /* лёгкий тёмный фон, чтобы текст не сливался */
+        /* display: inline-block; */
+        padding: 5px 10px;
+        border-radius: 8px;
+      }
+
+
+      h2 {
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="start-screen">
+      <h1>Симулятор футболиста</h1>
+      <button id="start-button">Начать игру</button>
+      <h2 id="player-greeting"></h2>
+    </div>
+    
+
+    <h1>Симулятор футболиста</h1>
+    <h2 id="name-button">Игрок</h2>
+
+    <button id="click-button">Тренировка!</button>
+    <!-- <button id="statistics-toggle">Магазин</button> -->
+    <button id="shop-toggle">Магазин</button>
+    <button onclick="resetGame()" id="reset-button">Сбросить прогресс</button>
+
+    <div id="score" class="overlay-info">Очков скилла: 0</div>
+    <div id="power" class="overlay-info">Уровень Тренировки: 1</div>
+    <div id="autoclicker" class="overlay-info">Количество очков силлы в секунду: 0</div>
+
+    
+    <div id="shop">
+      <h1>Магазин Brover-а</h1>
+      <button id="upgrade-button">Прокачать скилл (+1) — 50 очков скилла</button>
+      <button id="autoclicker-button">Улучшить Автоматическую Тренировку (+1) — 50 очков скилла</button>
+      <button id="scoregoal-button">Забить один гол — 500 очков скилла</button>
+      <button id="shop-close">Закрыть</button>
+      <scipt>
+      
+      </scipt>
+    </div>
+    <div id="statistics">
+      <h1>Статистика</h1>
+      <div id="count-goal">Количество голов : 0</div>
+    </div>
+
+    <script>
+      let score = 0;
+      let clickPower = 1;
+      let upgradeCost = 50;
+      let autoclickercost = 50;
+      let autoclick = 0;
+      let playerName = "Игрок";
+      let goal = 0;
+
+      const clickBtn = document.getElementById('click-button');
+      const upgradeBtn = document.getElementById('upgrade-button');
+      const shopToggle = document.getElementById('shop-toggle');
+      const shopClose = document.getElementById('shop-close');
+      const shopDiv = document.getElementById('shop');
+      const scoreDisplay = document.getElementById('score');
+      const powerDisplay = document.getElementById('power');
+      const autoclickBtn = document.getElementById('autoclicker-button');
+      const autoclickerDisplay = document.getElementById('autoclicker');
+      const nameBtn = document.getElementById('name-button');
+      const greeting = document.getElementById('player-greeting');
+      const startScreen = document.getElementById('start-screen');
+      const startButton = document.getElementById('start-button');
+      const scoreGoal = document.getElementById('scoregoal-button');
+      const countGoal = document.getElementById('count-goal');
+      countGoal.textContent='Количество забитых голов: ' + goal;
+      // const statisticsToggle = document.getElementById('statistics-toggle');
+      const statistics = document.getElementById('statistics');
+      function updateUI() {
+        scoreDisplay.textContent = 'Очков скилла: ' + score;
+        powerDisplay.textContent = 'Уровень Тренировки: ' + clickPower;
+        autoclickerDisplay.textContent = ' Количество очков силлы в секунду: ' + autoclick;
+        nameBtn.textContent = playerName;
+      }
+      
+      function saveGame() {
+        const data = {
+          score,
+          clickPower,
+          autoclick,
+          playerName,
+          upgradeCost,
+          autoclickercost,
+          goal
+        };
+        localStorage.setItem('footballGameData', JSON.stringify(data));
+      }
+      
+      function loadGame() {
+        const saved = localStorage.getItem('footballGameData');
+        if (saved) {
+          const data = JSON.parse(saved);
+          score = data.score ?? 0;
+          clickPower = data.clickPower ?? 1;
+          autoclick = data.autoclick ?? 0;
+          playerName = data.playerName ?? "Игрок";
+          upgradeCost = data.upgradeCost ?? 50;
+          autoclickercost = data.autoclickercost ?? 50;
+          goal = data.goal ?? 0;
+          
+          upgradeBtn.textContent = `Прокачать скилл (+1) — ${upgradeCost} очков скилла`;
+          autoclickBtn.textContent = `Улучшить Автоматическую Тренировку (+1) — ${autoclickercost} очков скилла`;
+          greeting.textContent = `Привет, ${playerName}! Добро пожаловать в игру.`;
+          nameBtn.textContent = playerName;
+        } else {
+          askName(); // Если данных нет — спрашиваем имя
+        }
+      }
+      
+      function askName() {
+        const name = prompt("Введите своё имя:");
+        if (name) {
+          playerName = name;
+          greeting.textContent = `Привет, ${playerName}! Добро пожаловать в игру.`;
+          nameBtn.textContent = playerName;
+          saveGame();
+          startScreen.style.display = 'none';
+        } else {
+          alert("Имя не введено!");
+        }
+      }
+      
+      function resetGame() {
+        localStorage.removeItem('footballGameData');
+        location.reload();
+      }
+      
+      clickBtn.onclick = function () {
+        score += clickPower;
+        updateUI();
+        saveGame();
+      };
+      
+      upgradeBtn.onclick = function () {
+        if (score >= upgradeCost) {
+          score -= upgradeCost;
+          clickPower++;
+          upgradeCost = Math.floor(upgradeCost * 1.25);
+          upgradeBtn.textContent = `Прокачать скилл (+1) — ${upgradeCost} очков скилла`;
+          updateUI();
+          saveGame();
+        } else {
+          alert('Недостаточно скилла!');
+        }
+      };
+      
+      autoclickBtn.onclick = function () {
+        if (score >= autoclickercost) {
+          score -= autoclickercost;
+          autoclick++;
+          autoclickercost = Math.floor(autoclickercost * 1.25);
+          autoclickBtn.textContent = `Улучшить Автоматическую Тренировку(+1) — ${autoclickercost} очков скилла`;
+          updateUI();
+          countGoal.textContent = 'Количество забитых голов: ' + goal;
+
+          saveGame();
+        } else {
+          alert('Недостаточно скилла!');
+        }
+      };
+      scoreGoal.onclick = function () {
+        if( score >= 500){
+          score-=500;
+          goal++;
+          updateUI();   
+          countGoal.textContent = 'Количество забитых голов: ' + goal;
+          saveGame();
+        }else{
+          alert('Недостаточно скилла!');
+        }
+      }
+      // statistics.style.display='block';
+      shopToggle.onclick = function () {
+        shopDiv.style.display = 'block' ;
+      };
+      shopClose.onclick = function () {
+        shopDiv.style.display = 'none';
+      };
+
+      setInterval(function () {
+        score += autoclick;
+        updateUI();
+        saveGame();
+      }, 1000);
+      
+      // statisticsToggle.onclick = function () {
+      //   statistics.style.display = 'block';
+      // };
+      startButton.onclick = function () {
+        if (playerName === "Игрок") {
+          askName();
+        } else {
+          startScreen.style.display = 'none';
+        }
+      };
+
+      loadGame();
+      updateUI();
+      setInterval(saveGame, 5000);
+    </script>
+
+  </body>
+  </html>
