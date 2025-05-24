@@ -65,7 +65,7 @@
     margin: 5px;
   }
 
-  #score, #power, #autoclicker {
+  #score, #power, #autoclicker , #club{
     background: rgba(0,0,0,0.5);
     padding: 10px 20px;
     border-radius: 10px;
@@ -92,7 +92,7 @@
     border-radius: 10px;
   }
 
-  #shop, #statistics {
+  #shop, #statistics, #tournament-shop  {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -106,20 +106,34 @@
     width: 90%;
     text-align: center;
   }
-  #shop button, #statistics button {
+  #shop button, #statistics button ,#tournament-shop button , #clubs-shop button {
     margin-top: 15px;
     width: 100%;
   }
 
   #training-time {
     margin-top: 10px;
+  }#clubs-shop {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.95);
+    padding: 30px;
+    border-radius: 10px;
+    z-index: 200;
+    display: none;
+    color: white;
+    text-align: center;
   }
+
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Симулятор футболиста</h1>
+  <h1>Симулятор футболиста </h1>
+  <h2>version 2.1</h2>
   <h2 id="player-name">Игрок</h2>
 </header>
 
@@ -127,32 +141,44 @@
   <div id="left-panel">
     <button id="training-button">Тренировка!</button>
     <button id="shop-button">Магазин</button>
+    <button id="clubs-button">Клубы</button>
+
   </div>
 
   <div id="game-area">
     <div id="score">Очков скилла: 0</div>
     <div id="power">Уровень тренировки: 1</div>
+    <div id="club">Текущий клуб: 1</div>
     <div id="autoclicker">Автотренировка: 0 очков/сек</div>
 
-    <div id="training">
+    <div id="training"> 
       <p id="training-score">Ваш счет: 0</p>
       <button id="target-button" style="display:none;">Нажми меня!</button>
       <p id="training-time">Осталось времени: 10</p>
     </div>
   </div>
-
+  <div id="clubs-shop">
+    <h1>Покупка клубов</h1>
+    <div id="clubs-list"></div>
+    <button onclick="document.getElementById('clubs-shop').style.display='none'">Закрыть</button>
+  </div>
+  
   <div id="right-panel">
     <button id="stats-button">Статистика</button>
     <button id="reset-button">Сбросить прогресс</button>
+    <button id="tournament-button">Турниры</button>
   </div>
 </div>
-
+<div id="tournament-shop">
+  <h1>Список турниров</h1>
+  <button id="playmatch-button">Сыграть матч — 100 очков скилла</button>
+  <button id="champion-league-button">Лига Чемпионов — сыграть матч</button>
+  <button id="close-tournament-shop">Закрыть турниры</button>
+</div>
 <div id="shop">
   <h1>Магазин</h1>
-  <button id="upgrade-button">Прокачать скилл (+1) — 50 очков скилла</button>
-  <button id="autoclicker-button">Улучшить автотренировку (+1 очко/сек) — 50 очков скилла</button>
-  <button id="scoregoal-button">Забить гол — 500 очков скилла</button>
-  <button id="champion-league-button">Лига Чемпионов — сыграть матч</button>
+  <button id="upgrade-button">Прокачать скилл (+1) — 25 очков скилла</button>
+  <button id="autoclicker-button">Улучшить автотренировку (+1 очко/сек) —  50 очков скилла</button>
   <button id="shop-close-button">Закрыть магазин</button>
 </div>
 
@@ -172,9 +198,9 @@
   let goals = 0;
   let championsWins = 0;
 
-  let upgradeCost = 50;
-  let autoclickCost = 100;
-  const goalCost = 500;
+  let upgradeCost = 25;
+  let autoclickCost = 50;
+  const goalCost = 100;
 
   const initialTeams = 32;
   let championsCurrentTeams = 0;
@@ -190,24 +216,42 @@
   const shopButton = document.getElementById('shop-button');
   const statsButton = document.getElementById('stats-button');
   const resetButton = document.getElementById('reset-button');
+  
+  const tournamentButton = document.getElementById('tournament-button');
+  const tournamentShop = document.getElementById('tournament-shop');
+  const closeTournamentShop = document.getElementById('close-tournament-shop');
 
   const shopDiv = document.getElementById('shop');
   const upgradeButton = document.getElementById('upgrade-button');
   const autoclickerButton = document.getElementById('autoclicker-button');
-  const scoregoalButton = document.getElementById('scoregoal-button');
+  const playmatchButton = document.getElementById('playmatch-button');
   const championLeagueButton = document.getElementById('champion-league-button');
   const shopCloseButton = document.getElementById('shop-close-button');
-
+  
   const statsDiv = document.getElementById('statistics');
   const goalsCountEl = document.getElementById('goals-count');
   const championsWinsCountEl = document.getElementById('champions-wins-count');
   const championsCurrentRoundEl = document.getElementById('champions-current-round');
   const statsCloseButton = document.getElementById('stats-close-button');
-
+  
   const trainingDiv = document.getElementById('training');
   const trainingScoreEl = document.getElementById('training-score');
   const targetButton = document.getElementById('target-button');
   const trainingTimeEl = document.getElementById('training-time');
+  
+  const clubTxt = document.getElementById('club');
+  const clubsButton = document.getElementById('clubs-button');
+  const clubsShop = document.getElementById('clubs-shop');
+  const clubsList = document.getElementById('clubs-list');
+
+  const clubsCofficient = [0.05,0.10,0.20,0.45,0.50,0.60,0.75,0.90,0.95,0.99];
+  const clubsCost = [0,10,50,100,500,1000,1500,2000,5750,10000];
+  const clubNames = ["club1", "club2", "club3", "club4", "club5", "club6", "clube7", "club8", "club9", "club10"];
+  const clubHave = [1,0,0,0,0,0,0,0,0,0];
+
+  let currentClub = 0;
+  let clubElements = 1;
+  
 
   let trainingScore = 0;
   let trainingTimer = null;
@@ -225,32 +269,51 @@
       upgradeCost,
       autoclickCost,
       championsCurrentTeams,
-      championsInTournament
+      championsInTournament,
+      currentClub,
+      clubElements
     };
     localStorage.setItem('footballSimulatorSave', JSON.stringify(data));
   }
+  function askName(){
+    playerNameEl.textContent = prompt("Веддите свое имя");
 
-  function loadProgress() {
-    const saved = localStorage.getItem('footballSimulatorSave');
-    if (saved) {
-      const data = JSON.parse(saved);
-      score = data.score || 0;
-      clickPower = data.clickPower || 1;
-      autoclickPower = data.autoclickPower || 0;
-      goals = data.goals || 0;
-      championsWins = data.championsWins || 0;
-      upgradeCost = data.upgradeCost || 50;
-      autoclickCost = data.autoclickCost || 100;
-      championsCurrentTeams = data.championsCurrentTeams || 0;
-      championsInTournament = data.championsInTournament || false;
-      if (data.playerName) playerNameEl.textContent = data.playerName;
-    } else {
-      championsCurrentTeams = 0;
-      championsInTournament = false;
+  }
+  function getArray(x){
+    let j=9;
+    for(let i=512;i>=1;i/=2){
+      
+      if(x>=i){
+        x-=i;
+        clubHave[j]=1;
+      }
+      j--;
     }
   }
-
-  // Обновление UI
+  function loadProgress() {
+      const saved = localStorage.getItem('footballSimulatorSave');
+      if (saved) {
+        const data = JSON.parse(saved); 
+        score = data.score || 0;
+        clickPower = data.clickPower || 1;
+        autoclickPower = data.autoclickPower || 0;
+        goals = data.goals || 0;
+        championsWins = data.championsWins || 0;
+        upgradeCost = data.upgradeCost || 25;
+        autoclickCost = data.autoclickCost || 50;
+        championsCurrentTeams = data.championsCurrentTeams || 0;
+        championsInTournament = data.championsInTournament || false;
+        if (data.playerName) playerNameEl.textContent = data.playerName;
+        currentClub = data.currentClub || 0 ;
+        clubElements = data.clubElements || 1 ;
+        getArray(clubElements);
+      } else {
+        championsCurrentTeams = 0;
+        championsInTournament = false;
+        askName();
+      }
+    }
+  // Обновление UI  
   function updateUI() {
     scoreEl.textContent = `Очков скилла: ${score}`;
     powerEl.textContent = `Уровень тренировки: ${clickPower}`;
@@ -259,6 +322,7 @@
     championsWinsCountEl.textContent = `Побед в ЛЧ: ${championsWins}`;
     upgradeButton.textContent = `Прокачать скилл (+1) — ${upgradeCost} очков скилла`;
     autoclickerButton.textContent = `Улучшить автотренировку (+1 очко/сек) — ${autoclickCost} очков скилла`;
+    clubTxt.textContent = `Текущий клуб : ${currentClub+1} `;
 
     if (championsInTournament) {
       championsCurrentRoundEl.textContent = `Текущий тур ЛЧ: ${championsCurrentTeams} команды`;
@@ -269,6 +333,40 @@
     }
   }
 
+  tournamentButton.onclick = function(){
+    tournamentShop.style.display = 'block';
+  }
+  closeTournamentShop.onclick = function(){
+    tournamentShop.style.display = 'none';
+  }
+
+  clubsButton.onclick = () => {
+    clubsShop.style.display = 'block';
+    clubsList.innerHTML = '';
+    for (let i = 0; i < clubNames.length; i++) {
+      if(goals >= clubsCost[i]){
+        const btn = document.createElement('button');
+        btn.textContent = `Выбрать клуб ${clubNames[i]} .  Шанс победы ${clubsCofficient[i]}`;
+        btn.onclick = function(){
+            currentClub = i ; 
+            updateUI();
+            alert(`Вы выбрали клуб ${i+1}`);
+            
+          }
+          clubsList.appendChild(btn);
+        }else{
+
+          const btn = document.createElement('button');
+          btn.textContent = `Перейти в клуб ${clubNames[i]} — ${clubsCost[i]} голов . Шанс победы ${clubsCofficient[i]}`;
+          btn.onclick = () => {
+          
+            alert('Недостаточно голов!');
+          
+        };
+        clubsList.appendChild(btn);
+      }
+    }
+  };
   // Тренировка - позиция кнопки
   function getRandomPosition() {
     const container = trainingDiv.getBoundingClientRect();
@@ -340,7 +438,7 @@
     if (score >= upgradeCost) {
       score -= upgradeCost;
       clickPower++;
-      upgradeCost = Math.floor(upgradeCost * 1.25);
+      upgradeCost = Math.floor(upgradeCost * 1.16);
       updateUI();
       saveProgress();
     } else {
@@ -353,7 +451,7 @@
     if (score >= autoclickCost) {
       score -= autoclickCost;
       autoclickPower++;
-      autoclickCost = Math.floor(autoclickCost * 1.75);
+      autoclickCost = Math.floor(autoclickCost * 1.50);
       updateUI();
       saveProgress();
     } else {
@@ -369,17 +467,30 @@
       saveProgress();
     }
   }, 1000);
-
+  function playGame(){
+    const win = Math.random() < clubsCofficient[currentClub];
+    if(win){
+      let currentGoals = Math.floor((Math.random()+1)*(championsWins+1));
+      goals+=currentGoals;
+      return currentGoals;
+    }else{
+      return -1;
+    }
+  }
   // Забить гол — потратить очки и добавить гол
-  scoregoalButton.onclick = () => {
+  playmatchButton.onclick = () => {
     if (score >= goalCost) {
       score -= goalCost;
-      goals++;
-      alert("ГОЛ! Ваш счет голов увеличился.");
+      const valueOfGame = playGame();
+      if(valueOfGame === -1){
+        alert('Вы проиграли матч');
+      }else{
+        alert(`Вы выиграли матч и забили ${valueOfGame} голов`);
+      }
       updateUI();
       saveProgress();
     } else {
-      alert(`Для забития гола нужно ${goalCost} очков скилла!`);
+      alert(`Для того что бы сыграть матч нужно ${goalCost} очков скилла!`);
     }
   };
 
@@ -403,25 +514,24 @@
         alert('Турнир уже завершён. Победитель — вы!');
         return;
       }
-
-      // Проигрыш - 50% шанс вылететь
-      const eliminated = Math.random() < 0.5;
-
-      if (eliminated) {
-        alert('Вы вылетели из Лиги Чемпионов! Попробуйте снова.');
+      const valueOfGame = playGame();
+      if(valueOfGame === -1){
+        alert('Вы вылетели из Лиги Чемпионов! Попробуйте снова.'); 
         championsInTournament = false;
         championsCurrentTeams = 0;
-      } else {
+      }else{
         championsCurrentTeams /= 2;
-        alert(`Поздравляем! Вы прошли в следующий раунд. Осталось команд: ${championsCurrentTeams}`);
+        alert(`Поздравляем! Вы прошли в следующий раунд. Осталось команд: ${championsCurrentTeams} и вы забили ${valueOfGame} голов `);
         if (championsCurrentTeams === 1) {
-          alert('Вы выиграли Лигу Чемпионов! +10000 очков скилла!');
+          alert('Вы выиграли Лигу Чемпионов! +100000 очков скилла!');
           championsWins++;
-          score += 10000;
+          score += 100000;
           championsInTournament = false;
           championsCurrentTeams = 0;
-        }
+        }        
       }
+     
+      
     }
     updateUI();
     saveProgress();
@@ -452,6 +562,7 @@
     trainingDiv.style.display = 'none';
 
     alert('Прогресс успешно сброшен!');
+    askName();
   }
 };
 
