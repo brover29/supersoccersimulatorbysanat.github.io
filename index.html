@@ -247,10 +247,8 @@
   const clubsCofficient = [0.05,0.10,0.20,0.45,0.50,0.60,0.75,0.90,0.95,0.99];
   const clubsCost = [0,10,50,100,500,1000,1500,2000,5750,10000];
   const clubNames = ["club1", "club2", "club3", "club4", "club5", "club6", "clube7", "club8", "club9", "club10"];
-  const clubHave = [1,0,0,0,0,0,0,0,0,0];
 
   let currentClub = 0;
-  let clubElements = 1;
   
 
   let trainingScore = 0;
@@ -271,7 +269,6 @@
       championsCurrentTeams,
       championsInTournament,
       currentClub,
-      clubElements
     };
     localStorage.setItem('footballSimulatorSave', JSON.stringify(data));
   }
@@ -279,17 +276,7 @@
     playerNameEl.textContent = prompt("Веддите свое имя");
 
   }
-  function getArray(x){
-    let j=9;
-    for(let i=512;i>=1;i/=2){
-      
-      if(x>=i){
-        x-=i;
-        clubHave[j]=1;
-      }
-      j--;
-    }
-  }
+ 
   function loadProgress() {
       const saved = localStorage.getItem('footballSimulatorSave');
       if (saved) {
@@ -305,8 +292,6 @@
         championsInTournament = data.championsInTournament || false;
         if (data.playerName) playerNameEl.textContent = data.playerName;
         currentClub = data.currentClub || 0 ;
-        clubElements = data.clubElements || 1 ;
-        getArray(clubElements);
       } else {
         championsCurrentTeams = 0;
         championsInTournament = false;
